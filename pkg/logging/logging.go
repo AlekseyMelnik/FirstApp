@@ -35,11 +35,11 @@ type Logger struct {
 	*logrus.Entry
 }
 
-func GetLogger() Logger {
-	return Logger{e}
+func GetLogger() *Logger {
+	return &Logger{e}
 }
-func (l *Logger) GetLoggerWithField(s string, v interface{}) Logger {
-	return Logger{l.WithField(s, v)}
+func (l *Logger) GetLoggerWithField(s string, v interface{}) *Logger {
+	return &Logger{l.WithField(s, v)}
 }
 func init() {
 	log := logrus.New()
@@ -52,10 +52,10 @@ func init() {
 		DisableColors: false,
 		FullTimestamp: true,
 	}
-	err := os.Mkdir("logs", 0644)
-	if err != nil {
-		panic(err)
-	}
+	//err := os.Mkdir("logs", 0644)
+	//if err != nil {
+	//	panic(err)
+	//}
 	allfile, err := os.OpenFile("logs/all.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0640)
 	if err != nil {
 		panic(err)
