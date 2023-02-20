@@ -1,8 +1,11 @@
 package main
 
 import (
+	db "FirstProject/internal/adapters/db/postgres"
 	"FirstProject/internal/config"
-	"FirstProject/internal/user"
+	"FirstProject/internal/domain/service"
+	v1 "FirstProject/internal/handlers/http/v1"
+	"FirstProject/pkg/db/postgres"
 	"FirstProject/pkg/logging"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
@@ -20,8 +23,16 @@ func main() {
 	router := httprouter.New()
 	logger.Info("Create config!")
 	cfg := config.GetConfig()
+	logger.Info("Create client database!")
 
-	handler := user.NewHandler(logger)
+	client, err := postgres.NewClient(cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Dbname)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer client.Close()
+	storage := db.NewUserStorage(client)
+	userService := service.NewUserService(storage)
+	handler := v1.NewUserHandler(userService)
 	handler.Register(router)
 	start(router, cfg)
 }

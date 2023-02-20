@@ -7,12 +7,20 @@ import (
 )
 
 type Config struct {
-	IsDebug *bool `yaml:"is_debug" env-default:"true"`
-	Listen  struct {
+	IsDebug     *bool  `yaml:"is_debug" env-default:"true"`
+	DatabaseUrl string `yaml:"database_url" env-default:"host=localhost dbname=restapi_dev sslmode=disable"`
+	Listen      struct {
 		Type   string `yaml:"type" env-default:"port"`
 		BindIp string `yaml:"bindIp" env-default:"127.0.0.1"`
 		Port   string `yaml:"port" env-default:"8080"`
 	} `yaml:"listen"`
+	Database struct {
+		Host     string `yaml:"host"`
+		Port     string `yaml:"port"`
+		User     string `yaml:"user"`
+		Password string `yaml:"password"`
+		Dbname   string `yaml:"dbname"`
+	} `yaml:"database"`
 }
 
 var instance *Config
