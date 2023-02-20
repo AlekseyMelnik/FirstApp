@@ -36,20 +36,38 @@ func (h *userHandler) Register(router *httprouter.Router) {
 func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	logger := logging.GetLogger()
 	logger.Info("Create user in Handler")
-	var d dto.CreateUserDTO
+	var d dto.UserDTO
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
+		h.error(w, r, http.StatusBadRequest, err)
 		logger.Fatal(err)
+		return
 	}
 	//MAPPING dto.CreateBookDTO --> book_usecase.CreateBookDTO
 	seviceUserDto := service.CreateUserDTO{
 		Email:    d.Email,
 		Password: d.Password,
 	}
+
 	user, err := h.userService.CreateUser(&seviceUserDto)
 	if err != nil {
+		h.error(w, r, http.StatusUnprocessableEntity, err)
 		logger.Fatal(err)
-		// TODO JSON RPC: TRANSPORT: 200, error: {msg, ..., dev_msg}
+		return
 	}
-	w.WriteHeader(http.StatusOK)
+
+	entityForUser := dto.UserDTO{
+		Id:    user.ID,
+		Email: user.Email,
+	}
+	h.respond(w, r, http.StatusOK, entityForUser)
+}
+func (h *userHandler) error(w http.ResponseWriter, r *http.Request, statusCode int, err error) {
+	h.respond(w, r, statusCode, map[string]string{"error": err.Error()})
+}
+func (h *userHandler) respond(w http.ResponseWriter, r *http.Request, statusCode int, data interface{}) {
+	w.WriteHeader(statusCode)
+	if data != nil {
+		json.NewEncoder(w).Encode(data)
+	}
 }

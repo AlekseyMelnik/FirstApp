@@ -1,11 +1,7 @@
 package dto
 
-type CreateUserDTO struct {
+type UserDTO struct {
+	Id       int    `json:"id"`
 	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-type UpdateUserDTO struct {
-	ID       int    `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password string `json:"password,omitempty"`
 }
